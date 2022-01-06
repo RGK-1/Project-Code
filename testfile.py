@@ -4,12 +4,6 @@ import tkinter as tk
 from tkinter.constants import BOTTOM, TOP
 from tkinter import *
 
-def Checkifxexists(inputa, inputb, inputc):
-    con = sqlite3.connect("Credentials.db")
-    cur = con.cursor()    
-    output = cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-    return output
-
 class MainMenu():
     def __init__(self):
         self.name=''          #Checkifxexists("First_Name", "User_ID", 1)
@@ -21,6 +15,12 @@ class MainMenu():
         #    self.AdminMainMenu()
         #else:
         #    self.UserMainMenu()
+    
+    def Checkifxexists(self,inputa, inputb, inputc):
+        con = sqlite3.connect("Credentials.db")
+        cur = con.cursor()    
+        output = cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
+        return output
     
     def ExistsValuePIN(self,inputa, inputb, inputc, inputd, inpute):
         con = sqlite3.connect("Credentials.db")
@@ -53,7 +53,7 @@ class MainMenu():
             self.Username=input("Please enter your User ID!:\n\n")
             exists1=self.ExistsValueUser("User_ID","User_ID",self.Username)
             checker=""
-            Locked_out=Checkifxexists("Locked_Out", "User_ID", self.Username)
+            Locked_out=self.Checkifxexists("Locked_Out", "User_ID", "1")
             lockcheck=[]
             for i in Locked_out:
                 lockcheck+=i
@@ -111,13 +111,13 @@ class MainMenu():
         if self.Attempts>=5:
             print("You're locked out!")
             return
-        names=Checkifxexists("First_Name", "User_ID", self.Username)
+        names=self.Checkifxexists("First_Name", "User_ID", self.Username)
         namesall=[]
         for i in names:
             namesall+=i
         self.name=namesall[0]        
         valid2=1
-        Permscheck=Checkifxexists("Permissions", "User_ID", self.Username)
+        Permscheck=self.Checkifxexists("Permissions", "User_ID", self.Username)
         permans=[]
         for i in Permscheck:
             permans+=i
