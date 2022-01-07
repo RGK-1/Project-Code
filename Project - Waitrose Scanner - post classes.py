@@ -503,3 +503,5 @@ class MainMenu():
             return
 
 app=MainMenu()
+
+print("Hello world")
