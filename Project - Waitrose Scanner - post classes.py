@@ -504,4 +504,3 @@ class MainMenu():
 
 app=MainMenu()
 
-print("Hello world")
