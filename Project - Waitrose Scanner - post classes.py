@@ -67,9 +67,9 @@ def CreateLLDB():
                 ''')
     con.commit()
     print("DB CREATED!")
-CreateUserDB()
-CreateProductDB()
-CreateRandomProducts()
+#CreateUserDB()
+#CreateProductDB()
+#CreateRandomProducts()
 
 
 class MainMenu():
@@ -502,23 +502,4 @@ class MainMenu():
         else:
             return
 
-#from image import DrawImage
-
-    
-
-
-#app = StoreMap(5)
-
-#menu()
-
-
-#CreateUserDB()
-
-#app=MainMenu()
-#login()
-#print(ExistsValue("User_ID", "First_Name", "Ryan"))
-
-#Register()
-
-#CreateProductDB()
-#CreateRandomProducts()
+app=MainMenu()
