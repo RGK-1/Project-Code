@@ -4,6 +4,74 @@ import tkinter as tk
 from tkinter.constants import BOTTOM, TOP
 from tkinter import *
 
+    # DataBase Creation Functions
+def CreateUserDB():
+    #only run once
+    con = sqlite3.connect("Credentials.db")
+    cur = con.cursor()
+
+    cur.execute('''CREATE TABLE Users
+                (User_ID INTEGER PRIMARY KEY, PIN TEXT, First_Name TEXT, Surname TEXT, Permissions TEXT, Locked_Out TEXT)
+                ''')
+    con.commit()
+    print("DB CREATED!")
+
+#def ProductSearch():    
+
+def CreateProductDB():
+
+    con = sqlite3.connect("Product.db")
+    cur = con.cursor()
+
+    cur.execute('''CREATE TABLE Users
+                (Product_ID INTEGER PRIMARY KEY, Product_Name TEXT, Price TEXT, Stock_Total TEXT, Aisle TEXT, Block TEXT, Shelf TEXT, Sequence TEXT)
+                ''')
+    con.commit()
+
+def CreateRandomProducts():
+    for i in range(500):
+        location=random.randint(1,18)
+        block=random.randint(1,6)
+        shelf=random.randint(1,8)
+        sequence=random.randint(1,5)
+        stocktotal=random.randint(0,100)
+        price=str(round(random.uniform(0.15,35.99),2))
+        productint=str(i)
+        Product_name="item"+productint
+        SQLRandProd("Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", Product_name, price, stocktotal, location, block, shelf, sequence)
+
+def SQLRandProd(inputa, inputb, inputc, inputd, inpute, inputf, inputg, inputh, inputi, inputj, inputk, inputl, inputm, inputn):
+    inputi=str("'"+(inputi)+"'")
+    inputh=str("'"+(inputh)+"'")
+    con = sqlite3.connect("Product.db")
+    cur = con.cursor()
+    cur.execute(f''' INSERT INTO Users({inputa}, {inputb}, {inputc}, {inputd}, {inpute}, {inputf}, {inputg}) VALUES({inputh}, {inputi}, {inputj}, {inputk}, {inputl}, {inputm}, {inputn}) ''')
+    con.commit()
+
+def CreateWastageDB():
+    con = sqlite3.connect("Wastage.db")
+    cur = con.cursor()
+
+    cur.execute('''CREATE TABLE Products
+                (Product_ID INTEGER PRIMARY KEY, Product_Name TEXT, Price TEXT, Stock_Total TEXT, )
+                ''')
+    con.commit()
+    print("DB CREATED!")
+
+def CreateLLDB():
+    con = sqlite3.connect("LineLookup.db")
+    cur = con.cursor()
+
+    cur.execute('''CREATE TABLE Users
+                (User_ID INTEGER PRIMARY KEY, PIN TEXT, First_Name TEXT, Surname TEXT)
+                ''')
+    con.commit()
+    print("DB CREATED!")
+CreateUserDB()
+CreateProductDB()
+CreateRandomProducts()
+
+
 class MainMenu():
     def __init__(self):
         self.name=''          #Checkifxexists("First_Name", "User_ID", 1)
@@ -46,72 +114,6 @@ class MainMenu():
         cur = con.cursor()    
         output = cur.execute(f'INSERT INTO USERS {inputa} VALUES({inputb} WHERE {inputc} = {inputd}')
         return output
-
-    
-    # DataBase Creation Functions
-    def CreateUserDB(self):
-        #only run once
-        con = sqlite3.connect("Credentials.db")
-        cur = con.cursor()
-
-        cur.execute('''CREATE TABLE Users
-                    (User_ID INTEGER PRIMARY KEY, PIN TEXT, First_Name TEXT, Surname TEXT, Permissions TEXT, Locked_Out TEXT)
-                    ''')
-        con.commit()
-        print("DB CREATED!")
-
-    #def ProductSearch():    
-
-    def CreateProductDB(self):
-
-        con = sqlite3.connect("Product.db")
-        cur = con.cursor()
-
-        cur.execute('''CREATE TABLE Users
-                    (Product_ID INTEGER PRIMARY KEY, Product_Name TEXT, Price TEXT, Stock_Total TEXT, Aisle TEXT, Block TEXT, Shelf TEXT, Sequence TEXT)
-                    ''')
-        con.commit()
-
-    def CreateRandomProducts(self):
-        for i in range(500):
-            location=random.randint(1,18)
-            block=random.randint(1,6)
-            shelf=random.randint(1,8)
-            sequence=random.randint(1,5)
-            stocktotal=random.randint(0,100)
-            price=str(round(random.uniform(0.15,35.99),2))
-            productint=str(i)
-            Product_name="item"+productint
-            self.SQLRandProd("Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", Product_name, price, stocktotal, location, block, shelf, sequence)
-
-    def SQLRandProd(inputa, inputb, inputc, inputd, inpute, inputf, inputg, inputh, inputi, inputj, inputk, inputl, inputm, inputn):
-        inputi=str("'"+(inputi)+"'")
-        inputh=str("'"+(inputh)+"'")
-        con = sqlite3.connect("Product.db")
-        cur = con.cursor()
-        cur.execute(f''' INSERT INTO Users({inputa}, {inputb}, {inputc}, {inputd}, {inpute}, {inputf}, {inputg}) VALUES({inputh}, {inputi}, {inputj}, {inputk}, {inputl}, {inputm}, {inputn}) ''')
-        con.commit()
-
-    def CreateWastageDB(self):
-        con = sqlite3.connect("Wastage.db")
-        cur = con.cursor()
-
-        cur.execute('''CREATE TABLE Products
-                    (Product_ID INTEGER PRIMARY KEY, Product_Name TEXT, Price TEXT, Stock_Total TEXT, )
-                    ''')
-        con.commit()
-        print("DB CREATED!")
-
-    def CreateLLDB(self):
-        con = sqlite3.connect("LineLookup.db")
-        cur = con.cursor()
-
-        cur.execute('''CREATE TABLE Users
-                    (User_ID INTEGER PRIMARY KEY, PIN TEXT, First_Name TEXT, Surname TEXT)
-                    ''')
-        con.commit()
-        print("DB CREATED!")
-
     def LineLookup(self):
         print("Welcome to LineLookup!")
         #integerorstring=[int(product), str(product)]
@@ -512,7 +514,7 @@ class MainMenu():
 
 #CreateUserDB()
 
-app=MainMenu()
+#app=MainMenu()
 #login()
 #print(ExistsValue("User_ID", "First_Name", "Ryan"))
 
