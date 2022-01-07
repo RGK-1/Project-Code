@@ -3,6 +3,7 @@ import random
 import tkinter as tk
 from tkinter.constants import BOTTOM, TOP
 from tkinter import *
+import pandas as pd
 
     # DataBase Creation Functions
 def CreateUserDB():
@@ -74,7 +75,7 @@ def CreateLLDB():
 
 class MainMenu():
     def __init__(self):
-        self.name=''          #Checkifxexists("First_Name", "User_ID", 1)
+        self.name=''          
         self.Username=''
         self.Permissions=''
         self.Attempts=0
@@ -120,37 +121,32 @@ class MainMenu():
         #for i in integerorstring:
         continue1=1
         while continue1==1:
-            Lookupentry=input("Please enter the barcode number or the name of the product!")
-            self.stringorintegerans=0
+            self.Lookupentry=input("Please enter the barcode number or the name of the product!")
             stringorint=self.integerorstring()
             if stringorint == 0:
                 print("Your input was not valid")
                 Lookupentry=input("Please enter the barcode number or the name of the product!")
             if stringorint == "string":
-                output=self.AllinColumnProduct("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", "Product_Name", self.stringorintegerans)
-                print("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf")
-                for i in output:
-                    print(i)
-                #print(output)
-            stop=input("Do you want to continue looking up? Press y or yes or to continue press enter")
+                string=self.stringorintegerans
+                output=self.AllinColumnProduct("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", "Product_Name", string)
+            stop=input("Do you want to stop looking up? Enter y or yes, or to continue press any key").lower()
             if stop == "y" or stop == "yes":
-                print("Returning to Main Menu")
-                self.menu()
-            
-
+                print("Returning to main menu!")
+                return       
+         
     def integerorstring(self):
-        integer=0
-        string=""
+        integer=-1
+        string="hey"
         valid=0
         while valid==0:
             try:
-                val=int(self.stringorintegerans)
+                val=int(self.Lookupentry)
                 integer=val
             except ValueError:
                 integer=0
             
             try:
-                val=str(self.stringorintegerans)
+                val=str(self.Lookupentry)
                 string=val
             except ValueError:
                 string=""
@@ -300,8 +296,15 @@ class MainMenu():
     def AllinColumnProduct(self, inputa, inputb, inputc, inputd, inpute, inputf, inputg, inputh, inputi, inputj):
         con = sqlite3.connect("Product.db")
         cur = con.cursor()
-        inputd="'"+inputd+"'"
-        output = cur.execute(f'SELECT {inputa}, {inputb}, {inputc}, {inputd}, {inpute}, {inputf}, {inputg}, {inputh} FROM Users WHERE {inputi} = {inputj}')
+        inputj="'"+inputj+"'"
+        cur.execute(f'SELECT {inputa}, {inputb}, {inputc}, {inputd}, {inpute}, {inputf}, {inputg}, {inputh} FROM Users WHERE {inputi} = {inputj}')
+        output = cur.fetchone()
+        #df=(pd.DataFrame(output, columns=[inputa, inputb, inputc, inputd, inpute, inputf, inputg, inputh]))
+        df=pd.read_sql_query(f'SELECT {inputa}, {inputb}, {inputc}, {inputd}, {inpute}, {inputf}, {inputg}, {inputh} FROM Users WHERE {inputi} = {inputj}', con)
+        print(df)
+        cur.close()
+        #cur.close()
+        #con.close()
         return output
     
     def CheckAllLockedOut(self):
@@ -485,12 +488,22 @@ class MainMenu():
             print("Hello", self.name, "You're a User!")
 
     def AdminMainMenu(self):
-        self.greeting()
-        self.CheckAllLockedOut()
-        selection=int(input("1) Line Lookup\n\n2) Wastage\n\n3) Offsales\n\n PLEASE PRESS THE CORRESPONDING NUMBER FOR YOUR MENU CHOICE!"))
-        if selection == 1:
-            self.LineLookup()
-
+        continue1=1
+        while continue1==1:
+            self.greeting()
+            self.CheckAllLockedOut()
+            selection=int(input("1) Line Lookup\n\n2) Wastage\n\n3) Offsales\n\n 4) Logout 5) Quit \n\n PLEASE PRESS THE CORRESPONDING NUMBER FOR YOUR MENU CHOICE!"))
+            if selection == 1:
+                self.LineLookup()
+            if selection == 4:
+                continue1=0
+                print("Goodbye "+ self.name+"!")
+                self.name=''          
+                self.Username=''
+                self.Permissions=''
+                self.Attempts=0
+            if selection == 5:
+                exit()
 
     def UserMainMenu(self):
         print("hello")
