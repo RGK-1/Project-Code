@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter.constants import BOTTOM, TOP
 from tkinter import *
 import pandas as pd
-
+from datetime import date
     # DataBase Creation Functions
 def CreateUserDB():
     #only run once
@@ -12,7 +12,7 @@ def CreateUserDB():
     cur = con.cursor()
 
     cur.execute('''CREATE TABLE Users
-                (User_ID INTEGER PRIMARY KEY, PIN TEXT, First_Name TEXT, Surname TEXT, Permissions TEXT, Locked_Out TEXT)
+                (User_ID INTEGER PRIMARY KEY, PIN INTEGER, First_Name TEXT, Surname TEXT, Permissions TEXT, Locked_Out TEXT)
                 ''')
     con.commit()
     print("DB CREATED!")
@@ -25,7 +25,7 @@ def CreateProductDB():
     cur = con.cursor()
 
     cur.execute('''CREATE TABLE Users
-                (Product_ID INTEGER PRIMARY KEY, Product_Name TEXT, Price TEXT, Stock_Total TEXT, Aisle TEXT, Block TEXT, Shelf TEXT, Sequence TEXT)
+                (Product_ID INTEGER PRIMARY KEY, Product_Name TEXT, Price REAL, Stock_Total INTEGER, Aisle INTEGER, Block INTEGER, Shelf INTEGER, Sequence INTEGER)
                 ''')
     con.commit()
 
@@ -54,7 +54,7 @@ def CreateWastageDB():
     cur = con.cursor()
 
     cur.execute('''CREATE TABLE Products
-                (Product_ID INTEGER PRIMARY KEY, Product_Name TEXT, Price TEXT, Stock_Total TEXT, )
+                (Product_ID INTEGER PRIMARY KEY, Product_Name TEXT, Price REAL, Stock_Total INTEGER, User_ID INTEGER, Quantiy_Wasted INTEGER, Date_Wasted TEXT, Wastage_Reason TEXT)
                 ''')
     con.commit()
     print("DB CREATED!")
@@ -64,13 +64,14 @@ def CreateLLDB():
     cur = con.cursor()
 
     cur.execute('''CREATE TABLE Users
-                (User_ID INTEGER PRIMARY KEY, PIN TEXT, First_Name TEXT, Surname TEXT)
+                (User_ID INTEGER PRIMARY KEY, PIN INTEGER, First_Name TEXT, Surname TEXT)
                 ''')
     con.commit()
     print("DB CREATED!")
 #CreateUserDB()
 #CreateProductDB()
 #CreateRandomProducts()
+#CreateWastageDB()
 
 
 class MainMenu():
@@ -79,7 +80,9 @@ class MainMenu():
         self.Username=''
         self.Permissions=''
         self.Attempts=0
-        self.main()
+        self.Startup()
+        #output=self.GetAisleNumber("Product_ID", "Product_Name", "9520")
+        #print(output)    
         #if self.Permissions == "Admin":
         #    self.AdminMainMenu()
         #else:
@@ -88,7 +91,8 @@ class MainMenu():
     def Checkifxexists(self,inputa, inputb, inputc):
         con = sqlite3.connect("Credentials.db")
         cur = con.cursor()    
-        output = cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
+        cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
+        output=cur.fetchone()
         return output
     
     def ExistsValuePIN(self,inputa, inputb, inputc, inputd, inpute):
@@ -127,13 +131,28 @@ class MainMenu():
                 print("Your input was not valid")
                 Lookupentry=input("Please enter the barcode number or the name of the product!")
             if stringorint == "string":
-                string=self.stringorintegerans
+                string=self.stringorintegerans.lower()
                 output=self.AllinColumnProduct("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", "Product_Name", string)
+                mapdisplay=input("Would you like to view this on the store map enter y or yes to view, or any key to continue.").lower()
+                if mapdisplay =="yes" or mapdisplay == "y":
+                    if __name__ == "__main__":    
+                        print("Please close the window to continue!")
+                        Aislenumber=self.GetAisleNumber("Aisle", "Product_Name", string)                   
+                        app = StoreMap(int(Aislenumber[0]))
+            if stringorint == "integer":
+                integer=self.stringorintegerans
+                output=self.AllinColumnProduct("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", "Product_ID", integer)
             stop=input("Do you want to stop looking up? Enter y or yes, or to continue press any key").lower()
             if stop == "y" or stop == "yes":
                 print("Returning to main menu!")
                 return       
-         
+    def GetAisleNumber(self,inputa, inputb, inputc):
+        con = sqlite3.connect("Product.db")
+        cur = con.cursor()
+        #inputc="'"+inputc+"'"    
+        cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
+        output = cur.fetchone()
+        return output
     def integerorstring(self):
         integer=-1
         string="hey"
@@ -178,8 +197,6 @@ class MainMenu():
         cur = con.cursor()
         cur.execute(f''' INSERT INTO Users({inputa}, {inputb}, {inputc}, {inputd}) VALUES({inpute}, {inputf}, {inputg}, {inputh}) ''')
         con.commit()
-
-
     def Register(self,input21):
         print("PLEASE ADMIN/MANAGER, NOW HAND OVER TO USER!\n\n")
         F_Name=input("Please enter your First Name:\n\n")
@@ -288,99 +305,108 @@ class MainMenu():
 
     def AllinColumn(self,inputa, inputb, inputc, inputd):
         con = sqlite3.connect("Credentials.db")
-        cur = con.cursor()
+        #cur = con.cursor()
         inputd="'"+inputd+"'"
-        output = cur.execute(f'SELECT {inputa}, {inputb} FROM Users WHERE {inputc} = {inputd}')
-        return output
+        df=pd.read_sql_query(f'SELECT {inputa}, {inputb} FROM Users WHERE {inputc} = {inputd}', con)
+        print(df)
+        return
 
     def AllinColumnProduct(self, inputa, inputb, inputc, inputd, inpute, inputf, inputg, inputh, inputi, inputj):
         con = sqlite3.connect("Product.db")
         cur = con.cursor()
         inputj="'"+inputj+"'"
-        cur.execute(f'SELECT {inputa}, {inputb}, {inputc}, {inputd}, {inpute}, {inputf}, {inputg}, {inputh} FROM Users WHERE {inputi} = {inputj}')
-        output = cur.fetchone()
-        #df=(pd.DataFrame(output, columns=[inputa, inputb, inputc, inputd, inpute, inputf, inputg, inputh]))
+        #cur.execute(f'SELECT {inputa}, {inputb}, {inputc}, {inputd}, {inpute}, {inputf}, {inputg}, {inputh} FROM Users WHERE {inputi} = {inputj}')
+        #output = cur.fetchone()
         df=pd.read_sql_query(f'SELECT {inputa}, {inputb}, {inputc}, {inputd}, {inpute}, {inputf}, {inputg}, {inputh} FROM Users WHERE {inputi} = {inputj}', con)
         print(df)
         cur.close()
-        #cur.close()
-        #con.close()
-        return output
+        return
     
     def CheckAllLockedOut(self):
-        AllLockedOut=self.AllinColumn("User_ID", "First_Name", "Locked_Out", "Yes")
         print("ATTENTION! These Users are Locked Out!")
-        print("User_ID, First_Name")
-        for i in AllLockedOut:
-            print(i)
-
-    class StoreMap(tk.Tk):
-        def __init__(self, input1):
-            super().__init__()
-            self.title("Store Map")
-            self.minsize(810, 520)
-            self.resizable(width=False, height=False)
-            self.topbar = tk.Frame(self, bg="green")
-            self.text = tk.Label(self.topbar, text="Store Map", bg="green")
-            self.window = tk.Frame(self, bg="white")
-            self.topbar.pack(side=TOP, fill="x")
-            self.text.pack(pady=(10, 5))
-            #self.buttons(self.window)
-            self.Back(self.window)
-            self.StoreMap(self.window, input1)
-            self.Front(self.window)
-            self.mainloop()
-
-        def buttons(self, root):
-            root.columnconfigure(0, weight=3)
-            root.columnconfigure(1, weight=1)
-            self.button1 = tk.Button(root, text="button 1", command=self.command1)
-            self.button2 = tk.Button(root, text="button 2")
-            self.button1.grid(row=0, column=0)
-            self.button2.grid(row=0, column=2)
-            
-        def StoreMap(self,root, input1):
-            self.canvas = Canvas(self,height=520,width=810,bg="#fff")            
-            self.canvas.pack()
-            aislenumber=input1
-            for i in range(1,9):
-                if i == aislenumber:
-                    self.canvas.create_rectangle(30+((i-1)*100),30,((i-1)*100)+80,240, outline="black", fill="#fb0")
-                else:
-                    self.canvas.create_rectangle((((i-1)*100)+30),30,((((i-1)*100)+80)),240, outline="black")
-            
-            for i in range(10,18):
-                if i == aislenumber:
-                    self.canvas.create_rectangle((30+((i-10)*100)),280,(((i-10)*100)+80),490, outline="black", fill="red")
-                else:
-                    self.canvas.create_rectangle((30+((i-10)*100)),280,(((i-10)*100)+80),490, outline="black")
-    def Back(self,root):
-        self.resizable(width=False, height=False)
-        self.topbar = tk.Frame(self)
-        self.text = tk.Label(self.topbar, text="Back of Store")
-        #self.window = tk.Frame(self, bg="white")
-        self.topbar.pack(side=TOP, fill="x")
-        self.text.pack(pady=(10, 5))
-    def Front(self,root):
-        self.resizable(width=False, height=False)
-        self.topbar = tk.Frame(self)
-        self.text = tk.Label(self.topbar, text="Front of Store")
-        #self.window = tk.Frame(self, bg="white")
-        self.topbar.pack(side=TOP, fill="x")
-        self.text.pack(pady=(10, 5))  
-
-    def command1(self):
-        print("comand1")
-
+        self.AllinColumn("User_ID", "First_Name", "Locked_Out", "Yes")
 
     #User Functions - Line Lookup, Wastage, Offsales
 
     def Wastage(self):
-        print()
+        print("Welcome to Wastage!")
+        continue1=1
+        while continue1==1:
+            self.Lookupentry=input("Please enter the barcode number or the name of the product!")
+            stringorint=self.integerorstring()
+            if stringorint == 0:
+                print("Your input was not valid")
+                Lookupentry=input("Please enter the barcode number or the name of the product!")
+            if stringorint == "string":
+                string=self.stringorintegerans.lower()                                
+                output=self.CheckString3i("Product_ID", "Product_Name", string)
+                self.AllinColumnProduct("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence","Product_Name", string)
+                if output != None:
+                    continue1=0
+                else:
+                    print("Sorry this item doesn't exist! Please try again.")
+            if stringorint == "integer":
+                integer=self.stringorintegerans                              
+                output=self.CheckNummber3i("Product_Name", "Product_ID", integer)
+                self.AllinColumnProdNo("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence","Product_ID", integer)
+                if output != None:
+                    continue1=0
+                    self.Wastage_Reason=input("Please selct your Wastage Reason by typing it's corresponding number!\n\n1) Damaged Product\n\n 2) Out of Date\n\n3) Product Stolen\n\n")
+                    if self.Wastage_Reason==1:
+                        self.WastageReason="Damaged Product"
+                        self.WastageQuantity=input("Please enter the Number of items that need to be Wasted")
+                        self.ItemReplaceNumber()
+                else:
+                    print("Sorry this item doesn't exist! Please try again.")
 
+        
+    def ItemReplaceNumber(self, inputa, inputb,):
+        con=sqlite3.connect("Product.db")
+        cur = con.cursor()
+        inputa=inputa-self.WastageQuantity
+        cur.execute(f''' UPDATE Users SET Stock_Total = {inputa} WHERE Product_ID = {inputb}''')
+        cur.close()
+        con=sqlite3.connect("Wastage.db")
+        cur = con.cursor()
+        cur.execute(f''' INSERT Users Users({"Product_ID"},{"Product_Name"}, {"Price"}, {"Stock_Total"}, {"User_ID"},{"Quantity_Wasted"}, {"Date_Wasted"}, {"Wastage_Reason"} VALUES({inputb}, {self.CheckNummber3i("Product_Name", "Product_ID", inputb)}, {self.CheckNummber3i("Price", "Product_ID", inputb)}, {self.CheckNummber3i("Stock_Total", "Product_ID", inputb)}, {self.Username}, {self.WastageQuantity}, {date.today()}, {self.WastageReason} ''')
+        cur.close()
+            
+    # def AllinColumnWastage(self, inputa, inputb):
+    #     con = sqlite3.connect("Product.db")
+    #     cur = con.cursor()
+    #     inputa="'"+inputa+"'"
+    #     inputb="'"+inputb+"'"
+    #     #cur.execute(f'SELECT {inputa}, {inputb}, {inputc}, {inputd}, {inpute}, {inputf}, {inputg}, {inputh} FROM Users WHERE {inputi} = {inputj}')
+    #     #output = cur.fetchone()
+    #     df=pd.read_sql_query(f'SELECT {"Product_ID"}, {"Product_Name"}, {"Price"}, {"Stock_Total"}, {"User_ID"}, {"Quantity_Wasted"} FROM Users WHERE {inputa} = {inputb}', con)
+    #     print(df)
+    #     cur.close()
+    #     return
+    def CheckNummber3i(self,inputa, inputb, inputc):
+        con = sqlite3.connect("Product.db")
+        cur = con.cursor()    
+        cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
+        output = cur.fetchone()
+        return output
+    def CheckString3i(self,inputa, inputb, inputc):
+        con = sqlite3.connect("Product.db")
+        cur = con.cursor()
+        inputc="'"+inputc+"'"    
+        cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
+        output = cur.fetchone()
+        return output
     def Offsales(self):
         print()
-
+    def AllinColumnProdNo(self, inputa, inputb, inputc, inputd, inpute, inputf, inputg, inputh, inputi, inputj):
+            con = sqlite3.connect("Product.db")
+            cur = con.cursor()
+            #cur.execute(f'SELECT {inputa}, {inputb}, {inputc}, {inputd}, {inpute}, {inputf}, {inputg}, {inputh} FROM Users WHERE {inputi} = {inputj}')
+            #output = cur.fetchone()
+            df=pd.read_sql_query(f'SELECT {inputa}, {inputb}, {inputc}, {inputd}, {inpute}, {inputf}, {inputg}, {inputh} FROM Users WHERE {inputi} = {inputj}', con)
+            print(df)
+            cur.close()
+            return
+    #def Wastage_Input(self, inputa, )
     #Admin Functions - Edit Product Database, Review Wastages, View Offsales
 
     def menu(self, Username):
@@ -459,23 +485,17 @@ class MainMenu():
             print("You're locked out!")
             return
         names=self.Checkifxexists("First_Name", "User_ID", self.Username)
-        namesall=[]
-        for i in names:
-            namesall+=i
-        self.name=namesall[0]        
+        self.name=names[0]        
         valid2=1
         Permscheck=self.Checkifxexists("Permissions", "User_ID", self.Username)
-        permans=[]
-        for i in Permscheck:
-            permans+=i
-        self.Permissions=permans[0]
+        self.Permissions=Permscheck[0]
         if self.Permissions == "Admin":
             self.attempts==0
             self.AdminMainMenu()
             return
         else:
             self.attempts==0
-            self.UserMainMenu(self.Username)
+            self.UserMainMenu()
             return 
 
     def greeting(self):
@@ -492,9 +512,11 @@ class MainMenu():
         while continue1==1:
             self.greeting()
             self.CheckAllLockedOut()
-            selection=int(input("1) Line Lookup\n\n2) Wastage\n\n3) Offsales\n\n 4) Logout 5) Quit \n\n PLEASE PRESS THE CORRESPONDING NUMBER FOR YOUR MENU CHOICE!"))
+            selection=int(input("1) Line Lookup\n\n2) Wastage\n\n3) Offsales\n\n4) Logout\n\n5) Quit \n\n PLEASE PRESS THE CORRESPONDING NUMBER FOR YOUR MENU CHOICE!"))
             if selection == 1:
                 self.LineLookup()
+            if selection == 2:
+                self.Wastage()
             if selection == 4:
                 continue1=0
                 print("Goodbye "+ self.name+"!")
@@ -509,11 +531,72 @@ class MainMenu():
         print("hello")
 
     def Startup(self):
-        choicelorr=input("Would you like to login or quit? To quit please press any key").lower()
-        if choicelorr == "login":
+        continue1=1
+        while continue1==1:
             self.main()
-        else:
-            return
+            choicelorr=input("Would you like to login or quit? To login please press any key or enter q or quit to quit.").lower()
+            if choicelorr == "q" or choicelorr =="quit":
+                return
+            else:
+                self.main()
+
+class StoreMap(tk.Tk):
+    def __init__(self, input1):
+        super().__init__()
+        self.title("Store Map")
+        self.minsize(810, 520)
+        self.resizable(width=False, height=False)
+        self.topbar = tk.Frame(self, bg="green")
+        self.text = tk.Label(self.topbar, text="Store Map", bg="green")
+        self.window = tk.Frame(self, bg="white")
+        self.topbar.pack(side=TOP, fill="x")
+        self.text.pack(pady=(10, 5))
+        #self.buttons(self.window)
+        self.Back(self.window)
+        self.StoreMap(self.window, input1)
+        self.Front(self.window)
+        self.mainloop()
+
+    def buttons(self, root):
+        root.columnconfigure(0, weight=3)
+        root.columnconfigure(1, weight=1)
+        self.button1 = tk.Button(root, text="button 1", command=self.command1)
+        self.button2 = tk.Button(root, text="button 2")
+        self.button1.grid(row=0, column=0)
+        self.button2.grid(row=0, column=2)
+        
+    def StoreMap(self,root, input1):
+        self.canvas = Canvas(self,height=520,width=810,bg="#fff")            
+        self.canvas.pack()
+        aislenumber=input1
+        for i in range(1,9):
+            if i == aislenumber:
+                self.canvas.create_rectangle(30+((i-1)*100),30,((i-1)*100)+80,240, outline="black", fill="#fb0")
+            else:
+                self.canvas.create_rectangle((((i-1)*100)+30),30,((((i-1)*100)+80)),240, outline="black")
+        
+        for i in range(10,18):
+            if i == aislenumber:
+                self.canvas.create_rectangle((30+((i-10)*100)),280,(((i-10)*100)+80),490, outline="black", fill="red")
+            else:
+                self.canvas.create_rectangle((30+((i-10)*100)),280,(((i-10)*100)+80),490, outline="black")
+    def Back(self,root):
+        self.resizable(width=False, height=False)
+        self.topbar = tk.Frame(self)
+        self.text = tk.Label(self.topbar, text="Back of Store")
+        #self.window = tk.Frame(self, bg="white")
+        self.topbar.pack(side=TOP, fill="x")
+        self.text.pack(pady=(10, 5))
+    def Front(self,root):
+        self.resizable(width=False, height=False)
+        self.topbar = tk.Frame(self)
+        self.text = tk.Label(self.topbar, text="Front of Store")
+        #self.window = tk.Frame(self, bg="white")
+        self.topbar.pack(side=TOP, fill="x")
+        self.text.pack(pady=(10, 5))  
+
+    def command1(self):
+        print("comand1")
 
 app=MainMenu()
 
