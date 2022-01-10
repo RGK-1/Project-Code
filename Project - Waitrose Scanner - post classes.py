@@ -393,6 +393,7 @@ class MainMenu():
         self.WastageReason="'"+self.WastageReason+"'"
 
         cur.execute(f''' INSERT INTO Products({"Product_ID"}, {"Product_Name"}, {"Price"}, {"Stock_Total"}, {"User_ID"}, {"Quantity_Wasted"}, {"Date_Wasted"}, {"Wastage_Reason"}) VALUES({self.Product_ID}, {Product_Name}, {Price}, {Stock_Total}, {self.Username}, {self.WastageQuantity}, {date.today()}, {self.WastageReason}) ''')
+        con.commit()
         con.close()
         #cur.close()
             
