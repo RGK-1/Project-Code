@@ -54,7 +54,7 @@ def CreateWastageDB():
     cur = con.cursor()
 
     cur.execute('''CREATE TABLE Products
-                (Product_ID INTEGER PRIMARY KEY, Product_Name TEXT, Price REAL, Stock_Total INTEGER, User_ID INTEGER, Quantiy_Wasted INTEGER, Date_Wasted TEXT, Wastage_Reason TEXT)
+                (Product_ID INTEGER PRIMARY KEY, Product_Name TEXT, Price REAL, Stock_Total INTEGER, User_ID INTEGER, Quantity_Wasted INTEGER, Date_Wasted TEXT, Wastage_Reason TEXT)
                 ''')
     con.commit()
     print("DB CREATED!")
@@ -374,12 +374,27 @@ class MainMenu():
         cur = con.cursor()
         Product_Name=self.CheckNummber3i("Product_Name", "Product_ID", self.Product_ID)
         Product_Name=Product_Name[0]
+        print(Product_Name)
         Stock_Total=self.CheckNummber3i("Stock_Total", "Product_ID", self.Product_ID)
         Stock_Total=int(Stock_Total[0])
+        print(Stock_Total)
+        print(self.Product_ID)
         Price=self.CheckNummber3i("Price", "Product_ID", self.Product_ID)
         Price=int(Price[0])
-        cur.execute(f''' INSERT INTO Products({"Product_ID"}, {"Product_Name"}, {"Price"}, {"Stock_Total"}, {"User_ID"}, {"Quantity_Wasted"}, {"Date_Wasted"}, {"Wastage_Reason"}) VALUES({self.Product_ID}, {"Product_Name"}, {Price}, {Stock_Total}, {self.Username}, {self.WastageQuantity}, {date.today()}, {self.WastageReason}) ''')
-        cur.close()
+        print(Price)
+        print(self.Username)
+        print(self.WastageQuantity)
+        print(self.WastageReason)        
+        Product_Name="'"+Product_Name+"'"
+        #Price="'"+Price+"'"
+        #Stock_Total="'"+Stock_Total+"'"
+        #self.Username="'"+self.Username+"'"
+        #self.WastageQuantity="'"+self.WastageQuantity+"'"
+        self.WastageReason="'"+self.WastageReason+"'"
+
+        cur.execute(f''' INSERT INTO Products({"Product_ID"}, {"Product_Name"}, {"Price"}, {"Stock_Total"}, {"User_ID"}, {"Quantity_Wasted"}, {"Date_Wasted"}, {"Wastage_Reason"}) VALUES({self.Product_ID}, {Product_Name}, {Price}, {Stock_Total}, {self.Username}, {self.WastageQuantity}, {date.today()}, {self.WastageReason}) ''')
+        con.close()
+        #cur.close()
             
     # def AllinColumnWastage(self, inputa, inputb):
     #     con = sqlite3.connect("Product.db")
