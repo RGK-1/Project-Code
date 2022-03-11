@@ -39,7 +39,7 @@ def CreateRandomProducts():
         stocktotal=random.randint(0,100)
         price=str(round(random.uniform(0.15,35.99),2))
         productint=str(i)
-        Product_name="item"+productint
+        Product_name = f"item{productint}"
         SQLRandProd("Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", Product_name, price, stocktotal, location, block, shelf, sequence)
 
 def SQLRandProd(inputa, inputb, inputc, inputd, inpute, inputf, inputg, inputh, inputi, inputj, inputk, inputl, inputm, inputn):
@@ -78,7 +78,7 @@ def LineLookup():
     while continue1==1:
         integerorstring()
         stop=input("Do you want to continue looking up? Press y or yes or to continue press enter")
-        if stop == "y" or stop == "yes":
+        if stop in ["y", "yes"]:
             print("Returning to Main Menu")
             menu()
         
@@ -94,14 +94,14 @@ def integerorstring():
             integer=val
         except ValueError:
             integer=0
-        
+
         try:
-            val=str(product)
+            val = product
             string=val
         except ValueError:
             string=""
-            
-        if integer==0 and string=="":
+
+        if integer == 0 and not string:
             print("Input isn't Integer or String!")
         if integer>0:
             product=integer
@@ -128,15 +128,15 @@ def InsertDataRegister(inputa,inputb,inputc,inputd,inpute,inputf, inputg, inputh
 
 def Checkifxexists(inputa, inputb, inputc):
     con = sqlite3.connect("Credentials.db")
-    cur = con.cursor()    
-    output = cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-    return output
+    cur = con.cursor()
+    return cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
 
 def InsertInto(inputa, inputb, inputc, inputd):
     con = sqlite3.connect("Credentials.db")
-    cur = con.cursor()    
-    output = cur.execute(f'INSERT INTO USERS {inputa} VALUES({inputb} WHERE {inputc} = {inputd}')
-    return output
+    cur = con.cursor()
+    return cur.execute(
+        f'INSERT INTO USERS {inputa} VALUES({inputb} WHERE {inputc} = {inputd}'
+    )
 #Used for the hashing and storing of PINs
 def CalculateHash(item):
     total=0
@@ -148,15 +148,15 @@ def ExistsValueUser(inputa, inputb, inputc):
     con = sqlite3.connect("Credentials.db")
     cur = con.cursor()
     inputc="'"+inputc+"'"
-    output = cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-    return output               #'SELECT ' & inputa & ' FROM Users WHERE ' & inputa & ' = ' & inputb        #f'SELECT {inputa} FROM Users WHERE {inputa} = {inputb}'
+    return cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
 #Checks PIN matches User
 def ExistsValuePIN(inputa, inputb, inputc, inputd, inpute):
     con = sqlite3.connect("Credentials.db")
     cur = con.cursor()
     inputc="'"+inputc+"'"
-    output = cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc} AND {inputd} = {inpute}')
-    return output               #'SELECT ' & inputa & ' FROM Users WHERE ' & inputa & ' = ' & inputb        #f'SELECT {inputa} FROM Users WHERE {inputa} = {inputb}'
+    return cur.execute(
+        f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc} AND {inputd} = {inpute}'
+    )
 # Inserts The Data Required to create new user
 def Register(input21):
     print("PLEASE ADMIN/MANAGER, NOW HAND OVER TO USER!\n\n")
@@ -173,11 +173,11 @@ def Register(input21):
             PIN1=input("Please enter your PIN:\n\n")
             PIN2=input("Please enter your PIN\n\n")
     continue1=0
+    correct=0
     #check=input("Please confirm entered Details:\n\n First Name - " + F_Name + "\n\n Surname - " + S_Name + "\n\n PIN - " + str(PIN1) + "\n\n - Please press yes to change these or press any key to continue!").lower()
     while continue1==0:
         check=input("Please confirm entered Details:\n\n First Name - " + F_Name + "\n\n Surname - " + S_Name + "\n\n PIN - " + str(PIN1) + "\n\n - Please press yes to change these or press any other key to continue!").lower()
-        correct=0
-        if check=="y" or check=="yes":
+        if check in ["y", "yes"]:
             F_Name=input("Please enter your First Name:\n\n")
             S_Name=input("Please enter your Surname:\n\n")
             PIN1=(input("Please enter your PIN:\n\n"))
@@ -197,30 +197,28 @@ def Register(input21):
     hashedpin=str(CalculateHash(PIN1))
     login()
     isadmin=0
-    while isadmin==0:    
-        if adorus == "a" or adorus == "A":
+    while isadmin==0:
+        if adorus in ["a", "A"]:
             valid1=0
             while valid1==0:
                 Username=input("Please enter your User ID!:\n\n")
                 exists1=ExistsValueUser("User_ID","User_ID",Username)
-                checker=""
                 Locked_out=Checkifxexists("Locked_Out", "User_ID", Username)
                 lockcheck=[]
                 for i in Locked_out:
                     lockcheck+=i
                     #print(i)
-                
+
                 if lockcheck[0] == "Y":
                     print("Sorry! Your account is Locked Out - Please Contact a Manager!")
                     return
-                for i in exists1:   #exists 1 calls function Exists value that looks for all the User ID's within the DB
-                    checker+=str(i)
+                checker = "".join(str(i) for i in exists1)
                 if checker == "":
                     print("Your User_ID was incorrect!")
                 else:
                     print("Your username was accepted!")
                     valid1=1
-        
+
             valid2=0
             attempts=0
             while attempts < 5:
@@ -228,13 +226,11 @@ def Register(input21):
                     PIN_input=input("Please enter your PIN!:\n\n")
                     HashPIN=str(CalculateHash(PIN_input))
                     exists1=ExistsValuePIN("PIN", "PIN", HashPIN, "User_ID", Username)
-                    checker1=""
-                    for i in exists1:
-                        checker1+=str(i)
+                    checker1 = "".join(str(i) for i in exists1)
                     if checker1 == "":
                         print("Your PIN was incorrect!")
                         attempts+=1
-                        print("You have "+ str(5-attempts) + " attempts remaining")                
+                        print(f"You have {str(5-attempts)} attempts remaining")
                         if attempts == 5:
                             print("You have exceeded the maxmum number of attempts!")
                             InsertInto("Locked_Out", "Yes", "User_ID", Username)
@@ -250,26 +246,27 @@ def Register(input21):
                             greeting(Username)
                         else:
                             print("Sorry you don't have the Sufficient Privilidges.")
-                            
+
                         attempts==0
                         return attempts
-    
+
     #    InsertDataRegister("PIN","First_Name", "Surname", "Permissions",hashedpin, F_Name, S_Name, "Admin")
 
-     
+
     ID=ExistsValueUser("User_ID", "First_Name", "Ryan")
     output1=[]
     for row in ID:
         output1+=row
     length=len(output1)-1
-    print("Your User ID is " + str(output1[length]))
+    print(f"Your User ID is {str(output1[length])}")
 
 def AllinColumn(inputa, inputb, inputc, inputd):
     con = sqlite3.connect("Credentials.db")
     cur = con.cursor()
     inputd="'"+inputd+"'"
-    output = cur.execute(f'SELECT {inputa}, {inputb} FROM Users WHERE {inputc} = {inputd}')
-    return output
+    return cur.execute(
+        f'SELECT {inputa}, {inputb} FROM Users WHERE {inputc} = {inputd}'
+    )
 
 def AdminMainMenu(inputa):
     greeting(inputa)
@@ -372,20 +369,18 @@ def login():
     while valid1==0:
         Username=input("Please enter your User ID!:\n\n")
         exists1=ExistsValueUser("User_ID","User_ID",Username)
-        checker=""
         Locked_out=Checkifxexists("Locked_Out", "User_ID", Username)
         lockcheck=[]
         for i in Locked_out:
             lockcheck+=i
             #print(i)
-        
-        if lockcheck[0] == "Y" or lockcheck[0]== "Yes":
+
+        if lockcheck[0] in ["Y", "Yes"]:
             print("Sorry! Your account is Locked Out - Please Contact a Manager!")
             return
         else:
             print()
-        for i in exists1:   #exists 1 calls function Exists value that looks for all the User ID's within the DB
-            checker+=str(i)
+        checker = "".join(str(i) for i in exists1)
         if checker == "":
             print("Your User_ID was incorrect!")
         else:
@@ -399,13 +394,11 @@ def login():
             PIN_input=input("Please enter your PIN!:\n\n")
             HashPIN=str(CalculateHash(PIN_input))
             exists1=ExistsValuePIN("PIN", "PIN", HashPIN, "User_ID", Username)
-            checker1=""
-            for i in exists1:
-                checker1+=str(i)
+            checker1 = "".join(str(i) for i in exists1)
             if checker1 == "":
                 print("Your PIN was incorrect!")
                 attempts+=1
-                print("You have "+ str(5-attempts) + " attempts remaining")                
+                print(f"You have {str(5-attempts)} attempts remaining")
                 if attempts == 5:
                     InsertInto("Locked_Out", "Yes", "User_ID", Username)
                     return attempts
@@ -416,11 +409,10 @@ def login():
                 permans=[]
                 for i in Permscheck:
                     permans+=i
+                attempts==0
                 if permans[0] == "Admin":
-                    attempts==0
                     AdminMainMenu(Username)
                 else:
-                    attempts==0
                     UserMainMenu(Username)
                     return attempts
                 
@@ -447,16 +439,16 @@ def main():
     print("Welcome to the Scanner\n\n")
     option1=input("Would you like to Register? - Type yes or no\n\n").lower()   #.lower() makes all entered characters lower case making them easier to match in if statment below
     #print(option1)
-    if option1=="y" or option1=="yes":
+    if option1 in ["y", "yes"]:
         Register()
-    
+
     attempts=0
     #ID=0
     attempts = login()
     #print(ID)
     if attempts == 5:
         return
-    
+
     menu()
 
 #app = StoreMap(5)

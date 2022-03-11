@@ -42,10 +42,10 @@ class Wastage():
                 self.AllinColumnProduct("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence","Product_Name", self.Product_Name)
                 self.ProductID=self.CheckString3i("Product_ID", "Product_Name", self.Product_Name)
                 self.ProductID=self.ProductID[0]
-                if self.Product_ID != None:
-                    self.WastageReasonDecision()
-                else:
+                if self.Product_ID is None:
                     print("Sorry this item doesn't exist! Please try again.")
+                else:
+                    self.WastageReasonDecision()
             if self.stringorint == "integer":
                 self.Product_ID=self.stringorintegerans                              
                 self.ProductName=self.CheckNummber3i("Product_Name", "Product_ID", self.Product_ID)
@@ -80,13 +80,13 @@ class Wastage():
     def ConfirmWastage(self):
         self.WastageQuantity=input("Please enter the Number of items that need to be Wasted")
         print("Please check the validity of the data below before it's submitted!")
-        self.Product_Name=self.Product_Name[0]                       
-        print("ProductID: " + str(self.Product_ID))
-        print("ProductName: " + self.Product_Name)
-        print("Wastage Quantity: " + str(self.WastageQuantity))
-        print("Wastage Reason: " + self.WastageReason)
+        self.Product_Name=self.Product_Name[0]
+        print(f"ProductID: {str(self.Product_ID)}")
+        print(f"ProductName: {self.Product_Name}")
+        print(f"Wastage Quantity: {str(self.WastageQuantity)}")
+        print(f"Wastage Reason: {self.WastageReason}")
         valid1=input("Is any of the above data incorrect? If yes please enter yes or y").lower()
-        if valid1 == "yes" or valid1 == "y":
+        if valid1 in ["yes", "y"]:
             self.WastageDataInputs()
         else:
             self.ItemReplaceNumber()
@@ -101,7 +101,7 @@ class Wastage():
         if inputa < 0:
             self.WastageQuantity=int(self.WastageQuantity)+inputa
             print("Wastage Quantity adjusted as Wastage Quantity is greater than remaining stock!")
-            inputa=0                
+            inputa=0
         cur.execute(f''' UPDATE Users SET Stock_Total = {inputa} WHERE Product_ID = {self.Product_ID}''')
         con.commit()
         con.close()
@@ -117,10 +117,13 @@ class Wastage():
         print(Price)
         print(self.Username)
         print(self.WastageQuantity)
-        print(self.WastageReason)        
+        print(self.WastageReason)
         Product_Name="'"+self.Product_Name+"'"
         self.WastageReason="'"+self.WastageReason+"'"
-        cur.execute(f''' INSERT INTO Products({"Product_ID"}, {"Product_Name"}, {"Price"}, {"Stock_Total"}, {"User_ID"}, {"Quantity_Wasted"}, {"Date_Wasted"}, {"Wastage_Reason"}) VALUES({self.Product_ID}, {Product_Name}, {Price}, {Stock_Total}, {self.Username}, {self.WastageQuantity}, {date.today()}, {self.WastageReason}) ''')
+        cur.execute(
+            f''' INSERT INTO Products(Product_ID, Product_Name, Price, Stock_Total, User_ID, Quantity_Wasted, Date_Wasted, Wastage_Reason) VALUES({self.Product_ID}, {Product_Name}, {Price}, {Stock_Total}, {self.Username}, {self.WastageQuantity}, {date.today()}, {self.WastageReason}) '''
+        )
+
         con.commit()
         con.close()
         #cur.close()
@@ -131,30 +134,30 @@ class SQLCommands():
     
     def Checkifxexists(self,inputa, inputb, inputc):
         con = sqlite3.connect("Credentials.db")
-        cur = con.cursor()    
+        cur = con.cursor()
         cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-        output=cur.fetchone()
-        return output
+        return cur.fetchone()
     
     def ExistsValuePIN(self,inputa, inputb, inputc, inputd, inpute):
         con = sqlite3.connect("Credentials.db")
         cur = con.cursor()
         inputc="'"+inputc+"'"
-        output = cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc} AND {inputd} = {inpute}')
-        return output   
+        return cur.execute(
+            f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc} AND {inputd} = {inpute}'
+        )   
     
     def ExistsValueUser(self,inputa, inputb, inputc):
         con = sqlite3.connect("Credentials.db")
         cur = con.cursor()
         inputc="'"+inputc+"'"
-        output = cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-        return output
+        return cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
 
     def InsertInto(inputa, inputb, inputc, inputd):
         con = sqlite3.connect("Credentials.db")
-        cur = con.cursor()    
-        output = cur.execute(f'INSERT INTO USERS {inputa} VALUES({inputb} WHERE {inputc} = {inputd}')
-        return output
+        cur = con.cursor()
+        return cur.execute(
+            f'INSERT INTO USERS {inputa} VALUES({inputb} WHERE {inputc} = {inputd}'
+        )
     def LineLookup(self):
         print("Welcome to LineLookup!")
         #integerorstring=[int(product), str(product)]
@@ -170,22 +173,20 @@ class SQLCommands():
                 string=self.stringorintegerans.lower()
                 output=self.AllinColumnProduct("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", "Product_Name", string)
                 mapdisplay=input("Would you like to view this on the store map enter y or yes to view, or any key to continue.").lower()
-                if mapdisplay =="yes" or mapdisplay == "y":
-                    if __name__ == "__main__":    
-                        print("Please close the window to continue!")
-                        Aislenumber=self.GetAisleNumberSTR("Aisle", "Product_Name", string)                   
-                        app = StoreMap(int(Aislenumber[0]))
+                if mapdisplay in ["yes", "y"] and __name__ == "__main__":
+                    print("Please close the window to continue!")
+                    Aislenumber=self.GetAisleNumberSTR("Aisle", "Product_Name", string)
+                    app = StoreMap(int(Aislenumber[0]))
             if stringorint == "integer":
                 integer=self.stringorintegerans
                 output=self.AllinColumnProdNo("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", "Product_ID", integer)
                 mapdisplay=input("Would you like to view this on the store map enter y or yes to view, or any key to continue.").lower()
-                if mapdisplay =="yes" or mapdisplay == "y":
-                    if __name__ == "__main__":    
-                        print("Please close the window to continue!")
-                        Aislenumber=self.GetAisleNumberINT("Aisle", "Product_Name", integer)                   
-                        StoreMap.Main(int(Aislenumber[0]))
+                if mapdisplay in ["yes", "y"] and __name__ == "__main__":
+                    print("Please close the window to continue!")
+                    Aislenumber=self.GetAisleNumberINT("Aisle", "Product_Name", integer)
+                    StoreMap.Main(int(Aislenumber[0]))
             stop=input("Do you want to stop looking up? Enter y or yes, or to continue press any key").lower()
-            if stop == "y" or stop == "yes":
+            if stop in ["y", "yes"]:
                 print("Returning to main menu!")
                 return       
     def GetAisleNumberINT(self,inputa, inputb, inputc):
@@ -193,15 +194,13 @@ class SQLCommands():
         cur = con.cursor()
         #inputc="'"+inputc+"'"    
         cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-        output = cur.fetchone()
-        return output
+        return cur.fetchone()
     def GetAisleNumberSTR(self,inputa, inputb, inputc):
         con = sqlite3.connect("Product.db")
         cur = con.cursor()
-        inputc="'"+inputc+"'"    
+        inputc="'"+inputc+"'"
         cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-        output = cur.fetchone()
-        return output
+        return cur.fetchone()
     
 
 class CreateDB():
@@ -242,7 +241,7 @@ class CreateDB():
             stocktotal=random.randint(0,100)
             price=str(round(random.uniform(0.15,35.99),2))
             productint=str(i)
-            Product_name="item"+productint
+            Product_name = f"item{productint}"
             self.SQLRandProd("Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", Product_name, price, stocktotal, location, block, shelf, sequence)
 
     def SQLRandProd(self,inputa, inputb, inputc, inputd, inpute, inputf, inputg, inputh, inputi, inputj, inputk, inputl, inputm, inputn):
