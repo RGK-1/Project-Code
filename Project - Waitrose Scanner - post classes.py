@@ -38,7 +38,7 @@ def CreateRandomProducts():
         stocktotal=random.randint(0,100)
         price=str(round(random.uniform(0.15,35.99),2))
         productint=str(i)
-        Product_name="item"+productint
+        Product_name = f"item{productint}"
         SQLRandProd("Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", Product_name, price, stocktotal, location, block, shelf, sequence)
 
 def SQLRandProd(inputa, inputb, inputc, inputd, inpute, inputf, inputg, inputh, inputi, inputj, inputk, inputl, inputm, inputn):
@@ -90,24 +90,23 @@ class MainMenu():
     
     def Checkifxexists(self,inputa, inputb, inputc):
         con = sqlite3.connect("Credentials.db")
-        cur = con.cursor()    
+        cur = con.cursor()
         cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-        output=cur.fetchone()
-        return output
+        return cur.fetchone()
     
     def ExistsValuePIN(self,inputa, inputb, inputc, inputd, inpute):
         con = sqlite3.connect("Credentials.db")
         cur = con.cursor()
         inputc="'"+inputc+"'"
-        output = cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc} AND {inputd} = {inpute}')
-        return output   
+        return cur.execute(
+            f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc} AND {inputd} = {inpute}'
+        )   
     
     def ExistsValueUser(self,inputa, inputb, inputc):
         con = sqlite3.connect("Credentials.db")
         cur = con.cursor()
         inputc="'"+inputc+"'"
-        output = cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-        return output  
+        return cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')  
     
     def CalculateHash(self,item):
         total=0
@@ -116,9 +115,10 @@ class MainMenu():
         return total % 5000000
     def InsertInto(inputa, inputb, inputc, inputd):
         con = sqlite3.connect("Credentials.db")
-        cur = con.cursor()    
-        output = cur.execute(f'INSERT INTO USERS {inputa} VALUES({inputb} WHERE {inputc} = {inputd}')
-        return output
+        cur = con.cursor()
+        return cur.execute(
+            f'INSERT INTO USERS {inputa} VALUES({inputb} WHERE {inputc} = {inputd}'
+        )
     def LineLookup(self):
         print("Welcome to LineLookup!")
         #integerorstring=[int(product), str(product)]
@@ -134,22 +134,20 @@ class MainMenu():
                 string=self.stringorintegerans.lower()
                 output=self.AllinColumnProduct("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", "Product_Name", string)
                 mapdisplay=input("Would you like to view this on the store map enter y or yes to view, or any key to continue.").lower()
-                if mapdisplay =="yes" or mapdisplay == "y":
-                    if __name__ == "__main__":    
-                        print("Please close the window to continue!")
-                        Aislenumber=self.GetAisleNumberSTR("Aisle", "Product_Name", string)                   
-                        app = StoreMap(int(Aislenumber[0]))
+                if mapdisplay in ["yes", "y"] and __name__ == "__main__":
+                    print("Please close the window to continue!")
+                    Aislenumber=self.GetAisleNumberSTR("Aisle", "Product_Name", string)
+                    app = StoreMap(int(Aislenumber[0]))
             if stringorint == "integer":
                 integer=self.stringorintegerans
                 output=self.AllinColumnProdNo("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence", "Product_ID", integer)
                 mapdisplay=input("Would you like to view this on the store map enter y or yes to view, or any key to continue.").lower()
-                if mapdisplay =="yes" or mapdisplay == "y":
-                    if __name__ == "__main__":    
-                        print("Please close the window to continue!")
-                        Aislenumber=self.GetAisleNumberINT("Aisle", "Product_Name", integer)                   
-                        app = StoreMap(int(Aislenumber[0]))
+                if mapdisplay in ["yes", "y"] and __name__ == "__main__":
+                    print("Please close the window to continue!")
+                    Aislenumber=self.GetAisleNumberINT("Aisle", "Product_Name", integer)
+                    app = StoreMap(int(Aislenumber[0]))
             stop=input("Do you want to stop looking up? Enter y or yes, or to continue press any key").lower()
-            if stop == "y" or stop == "yes":
+            if stop in ["y", "yes"]:
                 print("Returning to main menu!")
                 return       
     def GetAisleNumberINT(self,inputa, inputb, inputc):
@@ -157,15 +155,13 @@ class MainMenu():
         cur = con.cursor()
         #inputc="'"+inputc+"'"    
         cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-        output = cur.fetchone()
-        return output
+        return cur.fetchone()
     def GetAisleNumberSTR(self,inputa, inputb, inputc):
         con = sqlite3.connect("Product.db")
         cur = con.cursor()
-        inputc="'"+inputc+"'"    
+        inputc="'"+inputc+"'"
         cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-        output = cur.fetchone()
-        return output
+        return cur.fetchone()
     def integerorstring(self):
         integer=-1
         string="hey"
@@ -176,14 +172,14 @@ class MainMenu():
                 integer=val
             except ValueError:
                 integer=0
-            
+
             try:
                 val=str(self.Lookupentry)
                 string=val
             except ValueError:
                 string=""
-                
-            if integer==0 and string=="":
+
+            if integer == 0 and not string:
                 print("Input isn't Integer or String!")
                 return 0
             if integer>0:
@@ -225,11 +221,11 @@ class MainMenu():
                 PIN1=input("Please enter your PIN:\n\n")
                 PIN2=input("Please enter your PIN\n\n")
         continue1=0
+        correct=0
         #check=input("Please confirm entered Details:\n\n First Name - " + F_Name + "\n\n Surname - " + S_Name + "\n\n PIN - " + str(PIN1) + "\n\n - Please press yes to change these or press any key to continue!").lower()
         while continue1==0:
             check=input("Please confirm entered Details:\n\n First Name - " + F_Name + "\n\n Surname - " + S_Name + "\n\n PIN - " + str(PIN1) + "\n\n - Please press yes to change these or press any other key to quit!").lower()
-            correct=0
-            if check=="y" or check=="yes":
+            if check in ["y", "yes"]:
                 F_Name=input("Please enter your First Name:\n\n")
                 S_Name=input("Please enter your Surname:\n\n")
                 PIN1=(input("Please enter your PIN:\n\n"))
@@ -249,30 +245,28 @@ class MainMenu():
         hashedpin=str(self.CalculateHash(PIN1))
         self.login()
         isadmin=0
-        while isadmin==0:    
-            if adorus == "a" or adorus == "A":
+        while isadmin==0:
+            if adorus in ["a", "A"]:
                 valid1=0
                 while valid1==0:
                     Username=input("Please enter your User ID!:\n\n")
                     exists1=self.ExistsValueUser("User_ID","User_ID",Username)
-                    checker=""
                     Locked_out=self.Checkifxexists("Locked_Out", "User_ID", Username)
                     lockcheck=[]
                     for i in Locked_out:
                         lockcheck+=i
                         #print(i)
-                    
+
                     if lockcheck[0] == "Y":
                         print("Sorry! Your account is Locked Out - Please Contact a Manager!")
                         return
-                    for i in exists1:   #exists 1 calls function Exists value that looks for all the User ID's within the DB
-                        checker+=str(i)
+                    checker = "".join(str(i) for i in exists1)
                     if checker == "":
                         print("Your User_ID was incorrect!")
                     else:
                         print("Your username was accepted!")
                         valid1=1
-            
+
                 valid2=0
                 attempts=0
                 while attempts < 5:
@@ -280,13 +274,11 @@ class MainMenu():
                         PIN_input=input("Please enter your PIN!:\n\n")
                         HashPIN=str(self.CalculateHash(PIN_input))
                         exists1=self.ExistsValuePIN("PIN", "PIN", HashPIN, "User_ID", Username)
-                        checker1=""
-                        for i in exists1:
-                            checker1+=str(i)
+                        checker1 = "".join(str(i) for i in exists1)
                         if checker1 == "":
                             print("Your PIN was incorrect!")
                             attempts+=1
-                            print("You have "+ str(5-attempts) + " attempts remaining")                
+                            print(f"You have {str(5-attempts)} attempts remaining")
                             if attempts == 5:
                                 print("You have exceeded the maxmum number of attempts!")
                                 self.InsertInto("Locked_Out", "Yes", "User_ID", Username)
@@ -302,19 +294,19 @@ class MainMenu():
                                 self.greeting(Username)
                             else:
                                 print("Sorry you don't have the Sufficient Privilidges.")
-                                
+
                             attempts==0
                             return attempts
-        
+
         #    InsertDataRegister("PIN","First_Name", "Surname", "Permissions",hashedpin, F_Name, S_Name, "Admin")
 
-        
+
         ID=self.ExistsValueUser("User_ID", "First_Name", "Ryan")
         output1=[]
         for row in ID:
             output1+=row
         length=len(output1)-1
-        print("Your User ID is " + str(output1[length]))
+        print(f"Your User ID is {str(output1[length])}")
 
     def AllinColumn(self,inputa, inputb, inputc, inputd):
         con = sqlite3.connect("Credentials.db")
@@ -355,10 +347,10 @@ class MainMenu():
                 self.AllinColumnProduct("Product_ID", "Product_Name", "Price", "Stock_Total", "Aisle", "Block", "Shelf", "Sequence","Product_Name", self.Product_Name)
                 self.ProductID=self.CheckString3i("Product_ID", "Product_Name", self.Product_Name)
                 self.ProductID=self.ProductID[0]
-                if self.Product_ID != None:
-                    self.WastageReasonDecision()
-                else:
+                if self.Product_ID is None:
                     print("Sorry this item doesn't exist! Please try again.")
+                else:
+                    self.WastageReasonDecision()
             if self.stringorint == "integer":
                 self.Product_ID=self.stringorintegerans                              
                 self.ProductName=self.CheckNummber3i("Product_Name", "Product_ID", self.Product_ID)
@@ -396,13 +388,13 @@ class MainMenu():
     def ConfirmWastage(self):
         self.WastageQuantity=input("Please enter the Number of items that need to be Wasted")
         print("Please check the validity of the data below before it's submitted!")
-        self.Product_Name=self.Product_Name[0]                       
-        print("ProductID: " + str(self.Product_ID))
+        self.Product_Name=self.Product_Name[0]
+        print(f"ProductID: {str(self.Product_ID)}")
         print("ProductName: " + self.Product_Name)
-        print("Wastage Quantity: " + str(self.WastageQuantity))
+        print(f"Wastage Quantity: {str(self.WastageQuantity)}")
         print("Wastage Reason: " + self.WastageReason)
         valid1=input("Is any of the above data incorrect? If yes please enter yes or y").lower()
-        if valid1 == "yes" or valid1 == "y":
+        if valid1 in ["yes", "y"]:
             self.WastageDataInputs()
         else:
             self.ItemReplaceNumber()
@@ -417,7 +409,7 @@ class MainMenu():
         if inputa < 0:
             self.WastageQuantity=int(self.WastageQuantity)+inputa
             print("Wastage Quantity adjusted as Wastage Quantity is greater than remaining stock!")
-            inputa=0                
+            inputa=0
         cur.execute(f''' UPDATE Users SET Stock_Total = {inputa} WHERE Product_ID = {self.Product_ID}''')
         con.commit()
         con.close()
@@ -433,10 +425,13 @@ class MainMenu():
         print(Price)
         print(self.Username)
         print(self.WastageQuantity)
-        print(self.WastageReason)        
+        print(self.WastageReason)
         Product_Name="'"+self.Product_Name+"'"
         self.WastageReason="'"+self.WastageReason+"'"
-        cur.execute(f''' INSERT INTO Products({"Product_ID"}, {"Product_Name"}, {"Price"}, {"Stock_Total"}, {"User_ID"}, {"Quantity_Wasted"}, {"Date_Wasted"}, {"Wastage_Reason"}) VALUES({self.Product_ID}, {Product_Name}, {Price}, {Stock_Total}, {self.Username}, {self.WastageQuantity}, {date.today()}, {self.WastageReason}) ''')
+        cur.execute(
+            f''' INSERT INTO Products(Product_ID, Product_Name, Price, Stock_Total, User_ID, Quantity_Wasted, Date_Wasted, Wastage_Reason) VALUES({self.Product_ID}, {Product_Name}, {Price}, {Stock_Total}, {self.Username}, {self.WastageQuantity}, {date.today()}, {self.WastageReason}) '''
+        )
+
         con.commit()
         con.close()
         #cur.close()
@@ -454,17 +449,15 @@ class MainMenu():
     #     return
     def CheckNummber3i(self,inputa, inputb, inputc):
         con = sqlite3.connect("Product.db")
-        cur = con.cursor()    
+        cur = con.cursor()
         cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-        output = cur.fetchone()
-        return output
+        return cur.fetchone()
     def CheckString3i(self,inputa, inputb, inputc):
         con = sqlite3.connect("Product.db")
         cur = con.cursor()
         #inputc="'"+inputc+"'"    
         cur.execute(f'SELECT {inputa} FROM Users WHERE {inputb} = {inputc}')
-        output = cur.fetchone()
-        return output
+        return cur.fetchone()
     def Offsales(self):
         print()
     def AllinColumnProdNo(self, inputa, inputb, inputc, inputd, inpute, inputf, inputg, inputh, inputi, inputj):
@@ -494,21 +487,19 @@ class MainMenu():
         while valid1==0:
             self.Username=input("Please enter your User ID!:\n\n")
             exists1=self.ExistsValueUser("User_ID","User_ID",self.Username)
-            checker=""
             Locked_out=self.Checkifxexists("Locked_Out", "User_ID", self.Username)
             lockcheck=[]
             for i in Locked_out:
                 lockcheck+=i
                 #print(i)
-            
-            if lockcheck[0] == "Y" or lockcheck[0]== "Yes":
+
+            if lockcheck[0] in ["Y", "Yes"]:
                 print("Sorry! Your account is Locked Out - Please Contact a Manager!")
                 self.attempts=5
-                return 
+                return
             else:
                 print()
-            for i in exists1:   #exists 1 calls function Exists value that looks for all the User ID's within the DB
-                checker+=str(i)
+            checker = "".join(str(i) for i in exists1)
             if checker == "":
                 print("Your User_ID was incorrect!")
             else:
@@ -522,16 +513,14 @@ class MainMenu():
                 PIN_input=input("Please enter your PIN!:\n\n")
                 HashPIN=str(self.CalculateHash(PIN_input))
                 exists1=self.ExistsValuePIN("PIN", "PIN", HashPIN, "User_ID", self.Username)
-                checker1=""
-                for i in exists1:
-                    checker1+=str(i)
+                checker1 = "".join(str(i) for i in exists1)
                 if checker1 == "":
                     print("Your PIN was incorrect!")
                     self.attempts+=1
-                    print("You have "+ str(5-self.attempts) + " attempts remaining")                
+                    print(f"You have {str(5-self.attempts)} attempts remaining")
                     if self.attempts == 5:
                         self.InsertInto("Locked_Out", "Yes", "User_ID", self.Username)
-                        return 
+                        return
                 else:
                     print("Your PIN was accepted!")
                     return
@@ -555,18 +544,17 @@ class MainMenu():
             print("You're locked out!")
             return
         names=self.Checkifxexists("First_Name", "User_ID", self.Username)
-        self.name=names[0]        
+        self.name=names[0]
         valid2=1
         Permscheck=self.Checkifxexists("Permissions", "User_ID", self.Username)
         self.Permissions=Permscheck[0]
+        self.attempts==0
         if self.Permissions == "Admin":
-            self.attempts==0
             self.AdminMainMenu()
-            return
         else:
-            self.attempts==0
-            self.UserMainMenu()
-            return 
+            self.UserMainMenu() 
+
+        return 
 
     def greeting(self):
         #for character in "(,')":
@@ -585,16 +573,16 @@ class MainMenu():
             selection=int(input("1) Line Lookup\n\n2) Wastage\n\n3) Offsales\n\n4) Logout\n\n5) Quit \n\n PLEASE PRESS THE CORRESPONDING NUMBER FOR YOUR MENU CHOICE!"))
             if selection == 1:
                 self.LineLookup()
-            if selection == 2:
+            elif selection == 2:
                 self.Wastage()
-            if selection == 4:
+            elif selection == 4:
                 continue1=0
                 print("Goodbye "+ self.name+"!")
-                self.name=''          
+                self.name=''
                 self.Username=''
                 self.Permissions=''
                 self.Attempts=0
-            if selection == 5:
+            elif selection == 5:
                 exit()
 
     def UserMainMenu(self):
@@ -605,7 +593,7 @@ class MainMenu():
         while continue1==1:
             self.main()
             choicelorr=input("Would you like to login or quit? To login please press any key or enter q or quit to quit.").lower()
-            if choicelorr == "q" or choicelorr =="quit":
+            if choicelorr in ["q", "quit"]:
                 return
             else:
                 self.main()
